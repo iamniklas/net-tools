@@ -1,13 +1,9 @@
 package com.github.iamniklas.nettools.scanner;
 
 import com.github.iamniklas.nettools.models.RequestMethod;
+import com.github.iamniklas.nettools.models.DeviceResult;
 import com.github.iamniklas.nettools.models.TestResult;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -22,13 +18,14 @@ public class NetworkScanner extends Scanner {
     }
 
     @Override
-    public TestResult[] scanFor(Predicate<TestResult> condition) {
+    public TestResult scanFor(Predicate<DeviceResult> condition) {
         testFor = condition;
 
-        ArrayList<TestResult> results = new ArrayList<>();
+        ArrayList<DeviceResult> results = new ArrayList<>();
 
+        long measureStart = System.currentTimeMillis();
         for (int i = 1; i <= 255; i++) {
-            TestResult result = testDevice(
+            DeviceResult result = testDevice(
                     String.format("%s://%s.%d:%d/%s", protocol, networkIdentifier, i, port, path),
                     String.format("%s.%s", networkIdentifier, i),
                     150);
@@ -38,8 +35,12 @@ public class NetworkScanner extends Scanner {
                 }
             }
         }
+        long measureFinish = System.currentTimeMillis();
+        long scanDuration = measureFinish - measureStart;
 
-        return results.toArray(new TestResult[0]);
+        DeviceResult[] deviceResults = results.toArray(new DeviceResult[0]);
+
+        return new TestResult(deviceResults, scanDuration, measureStart, measureFinish);
     }
 
 

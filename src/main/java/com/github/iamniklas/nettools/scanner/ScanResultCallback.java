@@ -1,8 +1,8 @@
 package com.github.iamniklas.nettools.scanner;
 
-import com.github.iamniklas.nettools.models.TestResult;
+import com.github.iamniklas.nettools.models.DeviceResult;
 
 public interface ScanResultCallback {
-    void onSuccessResult(TestResult result);
+    void onSuccessResult(DeviceResult result);
     void onErrorResult(Exception exception);
 }

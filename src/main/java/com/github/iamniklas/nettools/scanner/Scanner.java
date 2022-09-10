@@ -1,10 +1,10 @@
 package com.github.iamniklas.nettools.scanner;
 
 import com.github.iamniklas.nettools.models.RequestMethod;
+import com.github.iamniklas.nettools.models.DeviceResult;
 import com.github.iamniklas.nettools.models.TestResult;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 public abstract class Scanner {
 
     protected ArrayList<String> result = new ArrayList<>();
-    protected Predicate<TestResult> testFor;
+    protected Predicate<DeviceResult> testFor;
 
     protected final String protocol = "http";
     protected final String networkIdentifier;
@@ -35,7 +35,7 @@ public abstract class Scanner {
         callback = _callback;
     }
 
-    public Predicate<TestResult> getScanCondition() {
+    public Predicate<DeviceResult> getScanCondition() {
         return testFor;
     }
 
@@ -48,9 +48,9 @@ public abstract class Scanner {
         return String.format("%s://%s.%d:%d/%s", protocol, networkIdentifier, _hostId != null ? _hostId : 1, port, path);
     }
 
-    public abstract TestResult[] scanFor(Predicate<TestResult> condition);
+    public abstract TestResult scanFor(Predicate<DeviceResult> condition);
 
-    protected TestResult testDevice(String _url, String _ip, int _timeout) {
+    protected DeviceResult testDevice(String _url, String _ip, int _timeout) {
         URL url = null;
         try {
             url = new URL(_url);
@@ -58,7 +58,7 @@ public abstract class Scanner {
             con.setRequestMethod(requestMethod.name());
             con.setConnectTimeout(_timeout);
             String body = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();
-            TestResult result = new TestResult(_ip, con.getResponseCode(), body);
+            DeviceResult result = new DeviceResult(_ip, con.getResponseCode(), body);
             callback.onSuccessResult(result);
             return result;
         } catch (Exception exception) {

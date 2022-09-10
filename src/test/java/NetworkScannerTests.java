@@ -1,3 +1,4 @@
+import com.github.iamniklas.nettools.models.DeviceResult;
 import com.github.iamniklas.nettools.models.TestResult;
 import com.github.iamniklas.nettools.scanner.AcceleratedNetworkScanner;
 import com.github.iamniklas.nettools.scanner.NetworkScanner;
@@ -33,10 +34,13 @@ public class NetworkScannerTests implements ScanResultCallback {
 
     @Test
     void testNetworkScanner() {
-        TestResult[] scanResult = networkScanner.scanFor(s -> s.resultCode == 200);
-        List<String> ips = Arrays.stream(scanResult).map(r -> r.ip).collect(Collectors.toList());
-        List<String> deviceNames = Arrays.stream(scanResult).map(r -> r.body).collect(Collectors.toList());
+        TestResult scanResult = networkScanner.scanFor(s -> s.resultCode == 200);
+        List<String> ips = Arrays.stream(scanResult.deviceResults).map(r -> r.ip).collect(Collectors.toList());
+        List<String> deviceNames = Arrays.stream(scanResult.deviceResults).map(r -> r.body).collect(Collectors.toList());
+        System.out.println("---");
         System.out.println("Scan Complete // Results:");
+        System.out.println("Scan Time: " + (scanResult.scanDuration / 1000) + "." + (scanResult.scanDuration % 1000) + "s");
+        System.out.println("Found " + scanResult.deviceResults.length + " devices");
         System.out.println("IPs:");
         System.out.println(new Gson().toJson(ips));
         System.out.println("Device Names:");
@@ -46,10 +50,13 @@ public class NetworkScannerTests implements ScanResultCallback {
 
     @Test
     void testAcceleratedNetworkScanner() {
-        TestResult[] scanResult = acceleratedNetworkScanner.scanFor(s -> s.resultCode == 200);
-        List<String> ips = Arrays.stream(scanResult).map(r -> r.ip).collect(Collectors.toList());
-        List<String> deviceNames = Arrays.stream(scanResult).map(r -> r.body).collect(Collectors.toList());
+        TestResult scanResult = acceleratedNetworkScanner.scanFor(s -> s.resultCode == 200);
+        List<String> ips = Arrays.stream(scanResult.deviceResults).map(r -> r.ip).collect(Collectors.toList());
+        List<String> deviceNames = Arrays.stream(scanResult.deviceResults).map(r -> r.body).collect(Collectors.toList());
+        System.out.println("---");
         System.out.println("Scan Complete // Results:");
+        System.out.println("Scan Time: " + (scanResult.scanDuration / 1000) + "." + (scanResult.scanDuration % 1000) + "s");
+        System.out.println("Found " + scanResult.deviceResults.length + " devices");
         System.out.println("IPs:");
         System.out.println(new Gson().toJson(ips));
         System.out.println("Device Names:");
@@ -58,7 +65,7 @@ public class NetworkScannerTests implements ScanResultCallback {
     }
 
     @Override
-    public void onSuccessResult(TestResult result) {
+    public void onSuccessResult(DeviceResult result) {
         System.out.println("Found device with IP " + result.ip);
     }
 
