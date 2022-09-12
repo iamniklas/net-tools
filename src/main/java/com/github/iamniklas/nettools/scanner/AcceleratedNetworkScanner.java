@@ -9,22 +9,29 @@ import java.util.function.Predicate;
 
 public class AcceleratedNetworkScanner extends Scanner {
 
+    private Integer completedScans = 0;
+
     public AcceleratedNetworkScanner(String _networkId, int _port, String _path, RequestMethod _requestMethod, int _scanTimeout, ScanResultCallback _callback) {
         super(_networkId, _port, _path,  _requestMethod, _scanTimeout, _callback);
+    }
+
+    private synchronized void incrementScanCounter() {
+        completedScans++;
+        callback.onScanComplete(completedScans, 255);
     }
 
     @Override
     public TestResult scanFor(Predicate<DeviceResult> condition) {
         ArrayList<RangeScanThread> scannerThreads = new ArrayList<>();
-        int threadCount = 8;
 
         ArrayList<DeviceResult> deviceResults = new ArrayList<>();
         try {
             long measureStart = System.currentTimeMillis();
-            for (int i = 0; i < threadCount; i++) {
+            for (int i = 0; i < 17; i++) {
+                //System.out.printf("Thread Range: %d-%d%n", 1 + (i) * 15, (i+1) * 15);
                 RangeScanThread scanThread = new RangeScanThread(
-                        1 + (threadCount * (i * (threadCount / 2))),
-                        Math.min((threadCount * (i + 1) * (threadCount / 2)), 255),
+                        1 + (i) * 15,
+                        (i+1) * 15,
                         networkIdentifier,
                         scanTimeout,
                         deviceResults
@@ -32,7 +39,7 @@ public class AcceleratedNetworkScanner extends Scanner {
                 scannerThreads.add(scanThread);
                 scanThread.start();
             }
-            for (int i = 0; i < threadCount; i++) {
+            for (int i = 0; i < 17; i++) {
                 scannerThreads.get(i).join();
             }
             long measureFinish = System.currentTimeMillis();
@@ -66,11 +73,12 @@ public class AcceleratedNetworkScanner extends Scanner {
         public void run() {
             super.run();
 
-            for (int i = from; i < to; i++) {
+            for (int i = from; i <= to; i++) {
                 DeviceResult deviceResult = testDevice(
                         String.format("%s://%s.%d:%d/%s", protocol, networkIdentifier, i, port, path),
                         String.format("%s.%s", networkIdentifier, i),
                         scanTimeout);
+                incrementScanCounter();
                 if(deviceResult != null) {
                     deviceResults.add(deviceResult);
                 }

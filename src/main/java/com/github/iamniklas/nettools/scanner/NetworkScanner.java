@@ -29,6 +29,7 @@ public class NetworkScanner extends Scanner {
                     String.format("%s://%s.%d:%d/%s", protocol, networkIdentifier, i, port, path),
                     String.format("%s.%s", networkIdentifier, i),
                     150);
+            callback.onScanComplete(i, 255);
             if(result != null) {
                 if(condition.test(result)) {
                     results.add(result);

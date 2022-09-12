@@ -70,6 +70,13 @@ public class NetworkScannerTests implements ScanResultCallback {
     }
 
     @Override
+    public void onScanComplete(int progress, int maxValue) {
+        if(progress == maxValue) {
+            System.out.println("Scanned all devices");
+        }
+    }
+
+    @Override
     public void onErrorResult(Exception exception) {
 
     }
